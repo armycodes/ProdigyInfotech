@@ -1,0 +1,43 @@
+import random
+from collections import defaultdict, Counter
+
+# Step 1: Input a larger text sample
+text = """The cat sat on the mat. The mat was flat. The cat was fat. The dog barked at the cat.
+The mat was soft. The dog lay on the mat. The cat jumped off the mat. The dog ran around the cat.
+Suddenly, a bird flew in through the window. The bird chirped and landed on the mat. The cat watched the bird."""
+
+# Step 2: Split the text into words
+words = text.split()
+
+# Step 3: Create a dictionary to store three-word chains (Markov Chain)
+markov_chain = defaultdict(Counter)
+
+# Step 4: Build the Markov Chain using three consecutive words as keys
+for i in range(len(words) - 3):
+    word_triplet = (words[i], words[i + 1], words[i + 2])  # Use three consecutive words as key
+    next_word = words[i + 3]
+    markov_chain[word_triplet][next_word] += 1  # Store the count of next words
+
+# Step 5: Function to generate text based on the Markov Chain using word triplets
+def generate_sentence(chain, start_triplet, length=10):
+    current_triplet = start_triplet
+    sentence = [current_triplet[0], current_triplet[1], current_triplet[2]]
+    for _ in range(length - 3):
+        if current_triplet in chain:
+            # Choose the next word based on frequency (more likely to pick the common one)
+            next_word = random.choices(list(chain[current_triplet].keys()),
+                                       list(chain[current_triplet].values()))[0]
+            sentence.append(next_word)
+            current_triplet = (current_triplet[1], current_triplet[2], next_word)  # Update the current triplet
+        else:
+            break  # Stop if there's no next word
+    return ' '.join(sentence)
+
+# Step 6: Pick a random starting word triplet from the text
+start_triplet = random.choice(list(markov_chain.keys()))
+
+# Step 7: Generate a sentence
+generated_sentence = generate_sentence(markov_chain, start_triplet, length=15)
+
+# Output the generated sentence
+print("Generated Sentence:", generated_sentence)
